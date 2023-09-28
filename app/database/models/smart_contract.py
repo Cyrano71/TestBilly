@@ -1,29 +1,69 @@
 import json
 from dataclasses import dataclass
+from app.database.models.base import BaseData
 
 @dataclass
-class SmartContractData:
-    event_id: int
-    collection_name: str
-    start_time: int
-    end_time: int
-    price_per_token: float
-    max_mint_per_user: float
-    sale_size: float
+class SmartContractData(BaseData):
+    eventId: int
+    collectionName: str
+    
+    crowdsale: str
+    collection: str
+    multisig: str
+    startTime: int
+    endTime: int
+    
+    isPresale: bool
+    metadataList: bytes
+    pricePerToken: float
+    maxMintPerUser: float
+    saleSize: float
+    saleCurrency: bytes
  
-def read_json_data(path: str):
-    f = open(path)
-    items = json.load(f)
-    data = []
-    for item in items:
-        data.append(SmartContractData(
-            event_id = item['event_id'],
-            collection_name = item['collection_name'],
-            start_time = item['smart_contract']["sale_params"]["start_time"],
-            end_time = item['smart_contract']["sale_params"]["end_time"],
-            price_per_token = item['smart_contract']["sale_params"]["price_per_token"],
-            max_mint_per_user = item['smart_contract']["sale_params"]["max_mint_per_user"],
-            sale_size = item['smart_contract']["sale_params"]["sale_size"],
-            ))
-    return data
+    @staticmethod
+    def read(path: str):
+        with open(path, 'r') as f:
+            f = open(path)
+            items = json.load(f)
+            data = []
+            for item in items:
+                data.append(SmartContractData(
+                    eventId = item['event_id'],
+                    collectionName = item['collection_name'],
+                    crowdsale = item['smart_contract']['crowdsale'],
+                    collection = item['smart_contract']['collection'],
+                    multisig = item['smart_contract']['multisig'],
+                    startTime = item['smart_contract']["sale_params"]["start_time"],
+                    endTime = item['smart_contract']["sale_params"]["end_time"],
+                    
+                    isPresale = item['smart_contract']["sale_params"]["is_presale"],
+                    metadataList = json.dumps(item['smart_contract']["sale_params"]["metadata_list"]).encode(),
+                    
+                    pricePerToken = item['smart_contract']["sale_params"]["price_per_token"],
+                    maxMintPerUser = item['smart_contract']["sale_params"]["max_mint_per_user"],
+                    saleSize = item['smart_contract']["sale_params"]["sale_size"],
+                    saleCurrency = json.dumps(item['smart_contract']["sale_params"]["sale_currency"]).encode(),
+                    ))
+            return data
+        
+    @staticmethod
+    def convert(l: list):
+        data = []
+        for t in l:
+            data.append(SmartContractData(
+                eventId = t[1],
+                collectionName = t[2],
+                crowdsale = t[3],
+                collection = t[4],
+                multisig = t[5],
+                startTime = t[6],
+                endTime = t[7],
+                isPresale = t[8],
+                metadataList = t[9].decode(),
+                pricePerToken = t[10],
+                maxMintPerUser = t[11],
+                saleSize = t[12],
+                saleCurrency = t[13].decode(),   
+                ))
+        return data
     

@@ -1,22 +1,54 @@
 from app.database.sqlite import Database
-from app.database.models.smart_contract import read_json_data
+from app.database.models.smart_contract import SmartContractData
+from app.database.models.organizers import OrganizersData
 import os
 
-data = read_json_data(os.path.join("data", "smart-contracts-data.json"))
 db = Database()
-table_name = "SMART_CONTRACT"
-db.create_table(table_name, '''
-                              ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                              EVENT_ID INT NOT NULL,
-                              COLLECTION_NAME TEXT,
-                              START_TIME INTEGER NOT NULL,
-                              END_TIME INTEGER NOT NULL,
-                              PRICE_PER_TOKEN REAL NOT NULL,
-                              MAX_MINT_PER_USER REAL NOT NULL,
-                              SALE_SIZE REAL NOT NULL
+
+data = SmartContractData.read(os.path.join("data", "smart-contracts-data.json"))
+smart_contract_table_name = "smartContract"
+db.create_table(smart_contract_table_name, '''
+                                      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                      eventId INTEGER NOT NULL,
+                                      collectionName TEXT,
+                                      crowdsale TEXT,
+                                      collection TEXT,
+                                      multisig TEXT,
+                                      startTime INTEGER NOT NULL,
+                                      endTime INTEGER NOT NULL,
+                                      isPresale INTEGER,
+                                      metadataList BLOB,
+                                      pricePerToken REAL,
+                                      maxMintPerUser REAL,
+                                      saleSize REAL,
+                                      saleCurrency BLOB
                         ''')
 for item in data:    
-   db.insert(table_name, item.__dict__)
+   db.insert(smart_contract_table_name, item.__dict__)
+
+data = OrganizersData.read(os.path.join("data", "organizers-data.csv"))  
+organizers_table_name = "organizers"
+db.create_table(organizers_table_name, '''
+                                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                    eventTitle TEXT,
+                                    eventStartDate INTEGER,
+                                    eventEndDate INTEGER,
+                                    nameLocation TEXT,
+                                    addressLocation TEXT,
+                                    totalTicketNumberInteger INTEGER,
+                                    maximumTicketsPerUser INTEGER,
+                                    saleStartDate TEXT,
+                                    lineUp BLOB,
+                                    eventImageVideoUrl TEXT
+                                ''')                                
+    
+for item in data:    
+    db.insert(organizers_table_name, item.__dict__)
    
-async def get_item_by_event_id(id: int):
-    return db.exec_query("SELECT * from SMART_CONTRACT WHERE EVENT_ID={0}".format(id))
+async def get_smart_contract_by_event_id(id: int):
+    result = db.exec_query("SELECT * from {0} WHERE eventId={1}".format(smart_contract_table_name, id))
+    return SmartContractData.convert(result)
+
+async def get_organizers_by_id(id: int):
+    result = db.exec_query("SELECT * from {0} WHERE id={1}".format(organizers_table_name, id))
+    return OrganizersData.convert(result)
