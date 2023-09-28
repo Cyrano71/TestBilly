@@ -4,7 +4,7 @@
 
 1. Clone this Repo
 
-   `git clone (https://github.com/KenMwaura1/Fast-Api-example)`
+   `git clone (https://github.com/Cyrano71/TestBilly.git)`
 2. Cd into the Fast-Api folder
 
    `cd Fast-Api-example`
