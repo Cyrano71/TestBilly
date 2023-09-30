@@ -41,6 +41,8 @@ class Database:
                         
         self.cursor.execute(sql, list(data.values()))
         self.conn.commit()
+        
+        return self.cursor.lastrowid
 
     def exec_query(self, query):
         self.cursor.execute(query)

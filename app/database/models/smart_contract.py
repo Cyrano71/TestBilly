@@ -12,11 +12,11 @@ class SmartContractData(BaseData):
     startTime: int
     endTime: int
     isPresale: bool
-    metadataList: bytes
+    metadataList: list
     pricePerToken: float
     maxMintPerUser: float
     saleSize: float
-    saleCurrency: bytes
+    saleCurrency: dict
  
     @staticmethod
     def read(path: str):
@@ -34,11 +34,11 @@ class SmartContractData(BaseData):
                     startTime = item['smart_contract']["sale_params"]["start_time"],
                     endTime = item['smart_contract']["sale_params"]["end_time"],    
                     isPresale = item['smart_contract']["sale_params"]["is_presale"],
-                    metadataList = json.dumps(item['smart_contract']["sale_params"]["metadata_list"]).encode(),                    
+                    metadataList = item['smart_contract']["sale_params"]["metadata_list"],                    
                     pricePerToken = item['smart_contract']["sale_params"]["price_per_token"],
                     maxMintPerUser = item['smart_contract']["sale_params"]["max_mint_per_user"],
                     saleSize = item['smart_contract']["sale_params"]["sale_size"],
-                    saleCurrency = json.dumps(item['smart_contract']["sale_params"]["sale_currency"]).encode(),
+                    saleCurrency = item['smart_contract']["sale_params"]["sale_currency"],
                     ))
             return data
         
@@ -55,11 +55,11 @@ class SmartContractData(BaseData):
                 startTime = t[6],
                 endTime = t[7],
                 isPresale = t[8],
-                metadataList = t[9].decode(),
-                pricePerToken = t[10],
-                maxMintPerUser = t[11],
-                saleSize = t[12],
-                saleCurrency = t[13].decode(),   
+                pricePerToken = t[9],
+                maxMintPerUser = t[10],
+                saleSize = t[11],
+                saleCurrency = json.loads(t[12]),   
+                metadataList = t[15].split(',') if t[15] else [],
                 ))
         return data
     

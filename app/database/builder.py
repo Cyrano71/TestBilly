@@ -3,6 +3,7 @@ from app.database.sqlite import Database
 from app.database.models.organizers import OrganizersData
 from app.database.models.smart_contract import SmartContractData
 import os
+import json
 
 class DatabaseBuilder(ABC):
     @abstractmethod
@@ -58,8 +59,8 @@ class SqliteBuilder(DatabaseBuilder):
     
     def buildSmartContract(self):
         smart_contracts = SmartContractData.read(os.path.join("data", "smart-contracts-data.json"))
-        smart_contract_table_name = "smartContract"
-        self.__db.create_table(smart_contract_table_name, '''
+        table_name = "smartContract"
+        self.__db.create_table(table_name, '''
                                               id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                                               eventId INTEGER NOT NULL,
                                               collectionName TEXT,
@@ -69,14 +70,31 @@ class SqliteBuilder(DatabaseBuilder):
                                               startTime INTEGER NOT NULL,
                                               endTime INTEGER NOT NULL,
                                               isPresale INTEGER,
-                                              metadataList BLOB,
                                               pricePerToken REAL,
                                               maxMintPerUser REAL,
                                               saleSize REAL,
-                                              saleCurrency BLOB
+                                              saleCurrency TEXT
                                 ''')
-        for smart_contract in smart_contracts:    
-           self.__db.insert(smart_contract_table_name, smart_contract.__dict__)
+        
+        metadatas = []
+        for smart_contract in smart_contracts:  
+            d = smart_contract.__dict__
+            metadataList = d['metadataList']
+            del d['metadataList']
+            d["saleCurrency"] = json.dumps(d["saleCurrency"])
+            last_id = self.__db.insert(table_name, d)
+            if metadataList:
+                for m in metadataList:
+                    metadatas.append({"smartContractId" : last_id, "metadata" : m})
+            
+         
+        table_name = "metadatas"
+        self.__db.create_table(table_name, '''
+                                              smartContractId INTEGER NOT NULL,
+                                              metadata TEXT NOT NULL
+                                ''')
+        for metadata in metadatas:     
+           self.__db.insert(table_name, metadata)   
            
     def getDatabase(self):
         return self.__db

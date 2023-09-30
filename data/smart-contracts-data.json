@@ -8,7 +8,7 @@
       "multisig": "KT1Aer6TxNwoMJejoqsNP8TEN7J6STgMtJcA",
       "sale_params": {
         "is_presale": false,
-        "metadata_list": [],
+        "metadata_list": ["test_meta_event_id1", "test_meta_event_id1bis"],
         "price_per_token": 4,
         "max_mint_per_user": 5,
         "sale_size": 500,
@@ -29,7 +29,7 @@
       "multisig": "KT1Itr6TxNwoMJejoqsNP8TEN7J6STgMtJcP",
       "sale_params": {
         "is_presale": false,
-        "metadata_list": [],
+        "metadata_list": ["test_meta_event_id2"],
         "price_per_token": 0,
         "max_mint_per_user": 2,
         "sale_size": 100,
