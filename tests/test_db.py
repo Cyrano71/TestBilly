@@ -34,7 +34,7 @@ def test_smart_contract_data_insert():
         assert len(result) == 8
         
 def test_organizers_data_insert():
-    data = OrganizersData.read(os.path.join("data", "organizers-data.csv"))
+    organizers = OrganizersData.read(os.path.join("data", "organizers-data.csv"))
     with Database() as db:
         table_name = "organizers"
         db.create_table(table_name, '''
@@ -47,14 +47,35 @@ def test_organizers_data_insert():
                                       totalTicketNumberInteger INTEGER,
                                       maximumTicketsPerUser INTEGER,
                                       saleStartDate TEXT,
-                                      lineUp BLOB,
                                       eventImageVideoUrl TEXT
                                 ''')
-    
-        for item in data:    
-           db.insert(table_name, item.__dict__)
-           
-        result = db.exec_query("select * from {0}".format(table_name))
+                                
+        lines_up = []
+        for organizer in organizers:    
+           d = organizer.__dict__
+           if d['lineUp']:
+               for l in d['lineUp'].split('-'):        
+                   lines_up.append({'organizersId' : d['id'], 'name' : l})
+           del d['lineUp']
+           db.insert(table_name, d)
+        
+        table_name = "linesUp"
+        db.create_table(table_name,'''
+                                   organizersId INTEGER NOT NULL,
+                                   name TEXT
+                                ''')
+                                
+        for line_up in lines_up:     
+           db.insert(table_name, line_up)   
+        
+        sql = """
+            select *, GROUP_CONCAT(name, '-') as lineUp from
+            (
+            select * from organizers left join linesUp on organizers.id = linesUp.organizersId
+            ) sub
+            Group By sub.id
+            """
+        result = db.exec_query(sql)
         result = OrganizersData.convert(result)
         assert len(result) == 5
 

@@ -17,25 +17,22 @@ class OrganizersData(BaseData):
     totalTicketNumberInteger: int
     maximumTicketsPerUser: int
     saleStartDate: str
-    lineUp: bytes
+    lineUp: list
     eventImageVideoUrl: str
  
     @staticmethod
     def read(path: str):
         with open(path, 'r') as file:
           csvreader = csv.reader(file, delimiter=',')
-          data = []
+          organizers = []
           next(csvreader, None)
           for row in csvreader: 
             start_date = int(time.mktime(datetime.datetime.strptime(row[2],
                                                 "%d/%m/%Y %H:%M").timetuple()))
             end_date = int(time.mktime(datetime.datetime.strptime(row[3],
                                                 "%d/%m/%Y %H:%M").timetuple()))
-            url = None
-            match = re.search("(png|mp4|jpeg)$", row[10])
-            if match:
-                url = row[10]
-            data.append(OrganizersData(
+            url = row[10] if re.search("(png|mp4|jpeg)$", row[10]) else None
+            organizers.append(OrganizersData(
                 id = int(row[0]),
                 eventTitle = row[1],
                 eventStartDate = start_date,
@@ -45,16 +42,16 @@ class OrganizersData(BaseData):
                 totalTicketNumberInteger = int(row[6]),
                 maximumTicketsPerUser = int(row[7]),
                 saleStartDate = row[8],
-                lineUp = row[9].encode(),
+                lineUp = row[9],
                 eventImageVideoUrl = url,
                 ))
-        return data
-
+        return organizers
+    
     @staticmethod
     def convert(l: list):
-        data = []
+        orgnanizers = []
         for t in l:
-            data.append(OrganizersData(
+            orgnanizers.append(OrganizersData(
                 id = t[0],
                 eventTitle = t[1],
                 eventStartDate = datetime.datetime.fromtimestamp(t[2]).strftime("%d/%m/%Y %H:%M"),
@@ -64,8 +61,8 @@ class OrganizersData(BaseData):
                 totalTicketNumberInteger = t[6],
                 maximumTicketsPerUser = t[7],
                 saleStartDate = t[8],
-                lineUp = t[9].decode(),
-                eventImageVideoUrl = t[10],
+                lineUp = t[12],
+                eventImageVideoUrl = t[9],
                 ))
-        return data
+        return orgnanizers
     
