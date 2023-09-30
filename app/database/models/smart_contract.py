@@ -6,13 +6,11 @@ from app.database.models.base import BaseData
 class SmartContractData(BaseData):
     eventId: int
     collectionName: str
-    
     crowdsale: str
     collection: str
     multisig: str
     startTime: int
     endTime: int
-    
     isPresale: bool
     metadataList: bytes
     pricePerToken: float
@@ -34,11 +32,9 @@ class SmartContractData(BaseData):
                     collection = item['smart_contract']['collection'],
                     multisig = item['smart_contract']['multisig'],
                     startTime = item['smart_contract']["sale_params"]["start_time"],
-                    endTime = item['smart_contract']["sale_params"]["end_time"],
-                    
+                    endTime = item['smart_contract']["sale_params"]["end_time"],    
                     isPresale = item['smart_contract']["sale_params"]["is_presale"],
-                    metadataList = json.dumps(item['smart_contract']["sale_params"]["metadata_list"]).encode(),
-                    
+                    metadataList = json.dumps(item['smart_contract']["sale_params"]["metadata_list"]).encode(),                    
                     pricePerToken = item['smart_contract']["sale_params"]["price_per_token"],
                     maxMintPerUser = item['smart_contract']["sale_params"]["max_mint_per_user"],
                     saleSize = item['smart_contract']["sale_params"]["sale_size"],

@@ -49,7 +49,7 @@ def test_organizers_data_insert():
                                       saleStartDate TEXT,
                                       lineUp BLOB,
                                       eventImageVideoUrl TEXT
-                                ''')                                
+                                ''')
     
         for item in data:    
            db.insert(table_name, item.__dict__)
