@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 from app.database.models.models import *
+from sqlalchemy import select
 
 class Database:
     
@@ -31,23 +32,65 @@ class Database:
         async with self.async_session() as session:
             async with session.begin():
                 session.add_all(data)
-                
-    async def select(self, query):
+    
+    queries: dict = {
+        TypeTable.SmartContracts : lambda x : select(SmartContracts).where(SmartContracts.id == x),
+        TypeTable.Organizers : lambda x : select(Organizers).where(Organizers.id == x)
+        }
+    
+    simple_queries: dict = {
+        TypeTable.SmartContracts : lambda : select(SmartContracts),
+        TypeTable.Organizers : lambda : select(Organizers)
+        }
+    
+    async def select(self, table: TypeTable, where_id: int = None):
         async with self.async_session() as session:
+            query = None
+            if where_id:
+                query = self.queries[table](where_id)
+            else:
+                query : self.simple_queries[table]()
+               
             result = await session.execute(query)
             data = []
-            for result in result.scalars():
-                await result.awaitable_attrs.lineUp
-                for ticket in await result.awaitable_attrs.ticketCollections:
-                    await ticket.awaitable_attrs.metadataList
+            for result in result.scalars():             
+                if table == TypeTable.SmartContracts:
+                    await result.awaitable_attrs.metadataList
+                else:
+                    await result.awaitable_attrs.lineUp
+                    for ticket in await result.awaitable_attrs.ticketCollections:
+                        await ticket.awaitable_attrs.metadataList
                 data.append(result)
             return data
-
-    async def exec_query(self, query):
-        await self.cursor.execute(query)
-        return await self.cursor.fetchall()
     
-    async def exec_query_with_data(self, query, data):
-        await self.cursor.execute(query, data)
-        return await self.cursor.fetchall()
+    async def update(self, table: TypeTable, where_id: int, update: dict):
+        async with self.async_session() as session:
+            query = self.queries[table](where_id)
+            result = await session.execute(query)
+            item = result.scalars().one()
+            for key, value in update.items():
+                setattr(item, key, value)
+            await session.commit()
+    
+    async def update_relationship(self, table: TypeTable, where_id: int, update: list):
+        async with self.async_session() as session:
+            query = self.queries[table](where_id)
+            
+            result = await session.execute(query)
+            item = result.scalars().one()
+            
+            if table == TypeTable.SmartContracts:
+                await item.awaitable_attrs.metadataList     
+                metadatas = [Metadatas(smart_contract_id=item.id, data=metadata) for metadata in update]
+                item.metadataList = []
+                await session.flush()
+                item.metadataList = metadatas
+                await session.commit()
+            else:
+                await item.awaitable_attrs.lineUp     
+                linesUp = [LinesUp(organizer_id=item.id, data=lineUp) for lineUp in update]
+                item.lineUp = []
+                await session.flush()
+                item.lineUp = linesUp
+                await session.commit()
 

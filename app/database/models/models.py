@@ -23,6 +23,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import selectinload
 from sqlalchemy.types import JSON
 
+from enum import Enum
+
+class TypeTable(Enum):
+    SmartContracts = 1
+    Organizers = 2
 
 class Base(AsyncAttrs, DeclarativeBase):
     type_annotation_map = {
@@ -55,7 +60,7 @@ class SmartContracts(Base):
     saleSize: Mapped[float]
     saleCurrency: Mapped[Dict[str, Any]]
      
-    metadataList: Mapped[List[Metadatas]] = relationship()
+    metadataList: Mapped[List[Metadatas]] = relationship(cascade="all, delete-orphan")
     
     @staticmethod
     def read(path: str):
@@ -106,7 +111,7 @@ class Organizers(Base):
     saleStartDate: Mapped[str]
     eventImageVideoUrl: Mapped[str | None]
     
-    lineUp: Mapped[List[LinesUp]] = relationship()
+    lineUp: Mapped[List[LinesUp]] = relationship(cascade="all, delete-orphan")
     ticketCollections: Mapped[List[SmartContracts]] = relationship()
     
     @staticmethod
