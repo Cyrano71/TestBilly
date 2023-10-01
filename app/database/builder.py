@@ -1,17 +1,17 @@
+import os
+import json
 from abc import ABC, abstractmethod
 from app.database.sqlite import Database
 from app.database.models.organizers import OrganizersData
 from app.database.models.smart_contract import SmartContractData
-import os
-import json
-
+        
 class DatabaseBuilder(ABC):
     @abstractmethod
-    def buildOrganizers(self):
+    def buildOrganizers(self, path: str):
         pass
     
     @abstractmethod
-    def buildSmartContract(self):
+    def buildSmartContract(self, path: str):
         pass
     
     @abstractmethod
@@ -23,8 +23,8 @@ class SqliteBuilder(DatabaseBuilder):
     def __init__(self):
         self.__db = Database()
         
-    def buildOrganizers(self):
-        organizers = OrganizersData.read(os.path.join("data", "organizers-data.csv"))
+    def buildOrganizers(self, path: str):
+        organizers = OrganizersData.read(path)
         table_name = "organizers"
         self.__db.create_table(table_name, '''
                                       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -57,8 +57,9 @@ class SqliteBuilder(DatabaseBuilder):
         for line_up in lines_up:     
            self.__db.insert(table_name, line_up)   
     
-    def buildSmartContract(self):
-        smart_contracts = SmartContractData.read(os.path.join("data", "smart-contracts-data.json"))
+    def buildSmartContract(self, path: str):
+        smart_contracts = SmartContractData.read(path)
+        
         table_name = "smartContract"
         self.__db.create_table(table_name, '''
                                               id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -79,6 +80,7 @@ class SqliteBuilder(DatabaseBuilder):
         metadatas = []
         for smart_contract in smart_contracts:  
             d = smart_contract.__dict__
+            del d['id']
             metadataList = d['metadataList']
             del d['metadataList']
             d["saleCurrency"] = json.dumps(d["saleCurrency"])

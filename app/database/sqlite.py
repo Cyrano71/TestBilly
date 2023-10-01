@@ -27,7 +27,7 @@ class Database:
     def __enter__(self):
         return self
 
-    def __exit__(self,exc_type,exc_value,traceback):  
+    def __exit__(self,exc_type,exc_value,traceback):
         self.close()
 
     def create_table(self, tableName, query):
@@ -46,5 +46,9 @@ class Database:
 
     def exec_query(self, query):
         self.cursor.execute(query)
+        return self.cursor.fetchall()
+    
+    def exec_query_with_data(self, query, data):
+        self.cursor.execute(query, data)
         return self.cursor.fetchall()
 

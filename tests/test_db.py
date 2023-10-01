@@ -1,12 +1,13 @@
 import pytest
 import os
+import configparser
 from app.database.builder import SqliteBuilder
 from app.database.models.organizers import OrganizersData
 from app.database.models.smart_contract import SmartContractData
-   
+    
 def test_smart_contract_data_insert():
     db_builder = SqliteBuilder()
-    db_builder.buildSmartContract()
+    db_builder.buildSmartContract(os.path.join("data", "smart-contracts-data.json"))
     with db_builder.getDatabase() as db:
         sql = """
             select *, GROUP_CONCAT(metadata, ',') as metadataList from
@@ -21,7 +22,7 @@ def test_smart_contract_data_insert():
         
 def test_organizers_data_insert():
     db_builder = SqliteBuilder()
-    db_builder.buildOrganizers()
+    db_builder.buildOrganizers(os.path.join("data", "organizers-data.csv"))
     db = db_builder.getDatabase()
     with db_builder.getDatabase() as db:    
         sql = """

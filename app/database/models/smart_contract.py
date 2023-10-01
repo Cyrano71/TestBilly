@@ -1,9 +1,13 @@
 import json
 from dataclasses import dataclass
 from app.database.models.base import BaseData
+from pydantic import BaseModel, Field
+from typing import Optional
+from app.database.models.base import BaseData
 
 @dataclass
 class SmartContractData(BaseData):
+    id: int
     eventId: int
     collectionName: str
     crowdsale: str
@@ -17,7 +21,7 @@ class SmartContractData(BaseData):
     maxMintPerUser: float
     saleSize: float
     saleCurrency: dict
- 
+       
     @staticmethod
     def read(path: str):
         with open(path, 'r') as f:
@@ -26,6 +30,7 @@ class SmartContractData(BaseData):
             data = []
             for item in items:
                 data.append(SmartContractData(
+                    id = None,
                     eventId = item['event_id'],
                     collectionName = item['collection_name'],
                     crowdsale = item['smart_contract']['crowdsale'],
@@ -47,6 +52,7 @@ class SmartContractData(BaseData):
         data = []
         for t in l:
             data.append(SmartContractData(
+                id = t[0],
                 eventId = t[1],
                 collectionName = t[2],
                 crowdsale = t[3],
