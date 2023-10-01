@@ -6,16 +6,21 @@ from app.database.models.organizers import OrganizersData
 from app.database.models.smart_contract import SmartContractData
         
 class DatabaseBuilder(ABC):
+    
     @abstractmethod
-    def buildOrganizers(self, path: str):
+    async def init_database(self):
         pass
     
     @abstractmethod
-    def buildSmartContract(self, path: str):
+    async def buildOrganizers(self, path: str):
         pass
     
     @abstractmethod
-    def getDatabase(self):
+    async def buildSmartContract(self, path: str):
+        pass
+    
+    @abstractmethod
+    async def getDatabase(self):
         pass
     
 class SqliteBuilder(DatabaseBuilder):
@@ -23,10 +28,13 @@ class SqliteBuilder(DatabaseBuilder):
     def __init__(self):
         self.__db = Database()
         
-    def buildOrganizers(self, path: str):
+    async def init_database(self):
+        await self.__db.open()
+           
+    async def buildOrganizers(self, path: str):
         organizers = OrganizersData.read(path)
         table_name = "organizers"
-        self.__db.create_table(table_name, '''
+        await self.__db.create_table(table_name, '''
                                       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                                       eventTitle TEXT,
                                       eventStartDate INTEGER,
@@ -46,22 +54,22 @@ class SqliteBuilder(DatabaseBuilder):
                for l in d['lineUp'].split('-'):        
                    lines_up.append({'organizersId' : d['id'], 'name' : l})
            del d['lineUp']
-           self.__db.insert(table_name, d)
+           await self.__db.insert(table_name, d)
         
         table_name = "linesUp"
-        self.__db.create_table(table_name,'''
+        await self.__db.create_table(table_name,'''
                                    organizersId INTEGER NOT NULL,
                                    name TEXT
                                 ''')
                                 
         for line_up in lines_up:     
-           self.__db.insert(table_name, line_up)   
+           await self.__db.insert(table_name, line_up)   
     
-    def buildSmartContract(self, path: str):
+    async def buildSmartContract(self, path: str):
         smart_contracts = SmartContractData.read(path)
         
         table_name = "smartContract"
-        self.__db.create_table(table_name, '''
+        await self.__db.create_table(table_name, '''
                                               id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                                               eventId INTEGER NOT NULL,
                                               collectionName TEXT,
@@ -84,20 +92,20 @@ class SqliteBuilder(DatabaseBuilder):
             metadataList = d['metadataList']
             del d['metadataList']
             d["saleCurrency"] = json.dumps(d["saleCurrency"])
-            last_id = self.__db.insert(table_name, d)
+            last_id = await self.__db.insert(table_name, d)
             if metadataList:
                 for m in metadataList:
                     metadatas.append({"smartContractId" : last_id, "metadata" : m})
             
          
         table_name = "metadatas"
-        self.__db.create_table(table_name, '''
+        await self.__db.create_table(table_name, '''
                                               smartContractId INTEGER NOT NULL,
                                               metadata TEXT NOT NULL
                                 ''')
         for metadata in metadatas:     
-           self.__db.insert(table_name, metadata)   
+           await self.__db.insert(table_name, metadata)   
            
-    def getDatabase(self):
+    async def getDatabase(self):
         return self.__db
         

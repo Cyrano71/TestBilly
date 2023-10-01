@@ -1,7 +1,8 @@
 import uvicorn
+import asyncio
 from fastapi import FastAPI
 from app.routers import users
-import asyncio
+from app.service import db_service
 
 app = FastAPI()
 app.include_router(users.router)
@@ -11,9 +12,11 @@ def root():
     return {"message": "Fast API in Python"}
 
 async def main():
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    await db_service.build()
+    await uvicorn.run(app, host="0.0.0.0", port=8000)
 
 if __name__ == '__main__':
     import nest_asyncio
     nest_asyncio.apply()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    #uvicorn.run(app, host="0.0.0.0", port=8000)
+    asyncio.run(main())

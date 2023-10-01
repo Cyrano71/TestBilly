@@ -1,3 +1,6 @@
 fastapi
 uvicorn
 pytest
+aiosqlite
+pytest-asyncio
+httpx

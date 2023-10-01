@@ -1,6 +1,7 @@
 import sqlite3
 from app.database.models.smart_contract import SmartContractData
 import os
+import aiosqlite
 
 class Database:
     
@@ -8,47 +9,45 @@ class Database:
         self.conn = None
         self.cursor = None
         self.name = name
-        self.open(name)
     
-    def open(self,name):     
+    async def open(self):     
         try:
-            self.conn = sqlite3.connect(name);
-            self.cursor = self.conn.cursor()
-
+            self.conn = await aiosqlite.connect(self.name);
+            self.cursor = await self.conn.cursor()
         except sqlite3.Error as e:
             print("Error connecting to database!")
     
-    def close(self):     
+    async def close(self):     
         if self.conn:
-            self.conn.commit()
-            self.cursor.close()
-            self.conn.close()  
+            await self.conn.commit()
+            await self.cursor.close()
+            await self.conn.close()  
 
-    def __enter__(self):
+    async def __aenter__(self):
         return self
 
-    def __exit__(self,exc_type,exc_value,traceback):
-        self.close()
+    async def __aexit__(self,exc_type,exc_value,traceback):
+        await self.close()
 
-    def create_table(self, tableName, query):
-        self.cursor.execute('DROP TABLE IF EXISTS {0}'.format(tableName))
-        self.cursor.execute("CREATE TABLE {0}({1})".format(tableName, query))
+    async def create_table(self, tableName, query):
+        await self.cursor.execute('DROP TABLE IF EXISTS {0}'.format(tableName))
+        await self.cursor.execute("CREATE TABLE {0}({1})".format(tableName, query))
 
-    def insert(self, tableName, data):
+    async def insert(self, tableName, data):
         columns = ', '.join(data.keys())
         placeholders = ', '.join('?' * len(data))
         sql = 'INSERT INTO {} ({}) VALUES ({})'.format(tableName, columns, placeholders)
                         
-        self.cursor.execute(sql, list(data.values()))
-        self.conn.commit()
+        await self.cursor.execute(sql, list(data.values()))
+        await self.conn.commit()
         
         return self.cursor.lastrowid
 
-    def exec_query(self, query):
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
+    async def exec_query(self, query):
+        await self.cursor.execute(query)
+        return await self.cursor.fetchall()
     
-    def exec_query_with_data(self, query, data):
-        self.cursor.execute(query, data)
-        return self.cursor.fetchall()
+    async def exec_query_with_data(self, query, data):
+        await self.cursor.execute(query, data)
+        return await self.cursor.fetchall()
 
