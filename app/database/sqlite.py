@@ -49,7 +49,7 @@ class Database:
             if where_id:
                 query = self.queries[table](where_id)
             else:
-                query : self.simple_queries[table]()
+                query = self.simple_queries[table]()
                
             result = await session.execute(query)
             data = []
