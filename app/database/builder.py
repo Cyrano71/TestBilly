@@ -8,19 +8,19 @@ from app.database.models.smart_contract import SmartContractData
 class DatabaseBuilder(ABC):
     
     @abstractmethod
-    async def init_database(self):
+    async def build_database(self):
         pass
     
     @abstractmethod
-    async def buildOrganizers(self, path: str):
+    async def build_organizers(self, path: str):
         pass
     
     @abstractmethod
-    async def buildSmartContract(self, path: str):
+    async def build_smart_contract(self, path: str):
         pass
     
     @abstractmethod
-    async def getDatabase(self):
+    async def get_database(self):
         pass
     
 class SqliteBuilder(DatabaseBuilder):
@@ -28,10 +28,10 @@ class SqliteBuilder(DatabaseBuilder):
     def __init__(self):
         self.__db = Database()
         
-    async def init_database(self):
+    async def build_database(self):
         await self.__db.open()
            
-    async def buildOrganizers(self, path: str):
+    async def build_organizers(self, path: str):
         organizers = OrganizersData.read(path)
         table_name = "organizers"
         await self.__db.create_table(table_name, '''
@@ -65,7 +65,7 @@ class SqliteBuilder(DatabaseBuilder):
         for line_up in lines_up:     
            await self.__db.insert(table_name, line_up)   
     
-    async def buildSmartContract(self, path: str):
+    async def build_smart_contract(self, path: str):
         smart_contracts = SmartContractData.read(path)
         
         table_name = "smartContract"
@@ -106,6 +106,6 @@ class SqliteBuilder(DatabaseBuilder):
         for metadata in metadatas:     
            await self.__db.insert(table_name, metadata)   
            
-    async def getDatabase(self):
+    async def get_database(self):
         return self.__db
         

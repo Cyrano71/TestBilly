@@ -8,9 +8,9 @@ from app.database.models.smart_contract import SmartContractData
 @pytest.mark.asyncio
 async def test_smart_contract_data_insert():
     db_builder = SqliteBuilder()
-    await db_builder.init_database()
-    await db_builder.buildSmartContract(os.path.join("data", "smart-contracts-data.json"))
-    db = await db_builder.getDatabase()
+    await db_builder.build_database()
+    await db_builder.build_smart_contract(os.path.join("data", "smart-contracts-data.json"))
+    db = await db_builder.get_database()
     sql = """
         select *, GROUP_CONCAT(metadata, ',') as metadataList from
         (
@@ -25,9 +25,9 @@ async def test_smart_contract_data_insert():
 @pytest.mark.asyncio      
 async def test_organizers_data_insert():
     db_builder = SqliteBuilder()
-    await db_builder.init_database()
-    await db_builder.buildOrganizers(os.path.join("data", "organizers-data.csv"))
-    db = await db_builder.getDatabase()
+    await db_builder.build_database()
+    await db_builder.build_organizers(os.path.join("data", "organizers-data.csv"))
+    db = await db_builder.get_database()
     sql = """
             select *, GROUP_CONCAT(name, '-') as lineUp from
             (
@@ -43,4 +43,7 @@ if __name__ == '__main__':
     os.chdir('../')
     import nest_asyncio
     nest_asyncio.apply()
-    asyncio.run(test_smart_contract_data_insert())
+    async def main():
+        await test_smart_contract_data_insert()
+        await test_organizers_data_insert()
+    asyncio.run(main())

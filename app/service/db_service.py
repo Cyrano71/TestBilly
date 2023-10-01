@@ -8,11 +8,11 @@ db = None
 
 async def build():
     db_builder = SqliteBuilder()
-    await db_builder.init_database()
-    await db_builder.buildOrganizers(os.path.join("data", "organizers-data.csv"))
-    await db_builder.buildSmartContract(os.path.join("data", "smart-contracts-data.json"))
+    await db_builder.build_database()
+    await db_builder.build_organizers(os.path.join("data", "organizers-data.csv"))
+    await db_builder.build_smart_contract(os.path.join("data", "smart-contracts-data.json"))
     global db
-    db = await db_builder.getDatabase()
+    db = await db_builder.get_database()
 
 async def get_smart_contract_by_event_id(event_id: int):
     sql = """
