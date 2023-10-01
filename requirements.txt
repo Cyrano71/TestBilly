@@ -4,3 +4,4 @@ pytest
 aiosqlite
 pytest-asyncio
 httpx
+sqlalchemy

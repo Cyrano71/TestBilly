@@ -1,27 +1,25 @@
-import sqlite3
-from app.database.models.smart_contract import SmartContractData
-import os
-import aiosqlite
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
+from app.database.models.models import *
 
 class Database:
     
-    def __init__(self, name="billy.db"):    
-        self.conn = None
-        self.cursor = None
-        self.name = name
+    def __init__(self):
+        self.engine = None
+        self.async_session = None
     
-    async def open(self):     
+    async def open(self):
         try:
-            self.conn = await aiosqlite.connect(self.name);
-            self.cursor = await self.conn.cursor()
-        except sqlite3.Error as e:
-            print("Error connecting to database!")
+            self.engine = create_async_engine('sqlite+aiosqlite://')
+            self.async_session = async_sessionmaker(self.engine, expire_on_commit=False)
+            async with self.engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+        except Exception as e:
+            print(f"Error connecting to database {e}!")
     
-    async def close(self):     
-        if self.conn:
-            await self.conn.commit()
-            await self.cursor.close()
-            await self.conn.close()  
+    async def close(self):
+        if self.engine:
+            await engine.dispose()
 
     async def __aenter__(self):
         return self
@@ -29,19 +27,21 @@ class Database:
     async def __aexit__(self,exc_type,exc_value,traceback):
         await self.close()
 
-    async def create_table(self, tableName, query):
-        await self.cursor.execute('DROP TABLE IF EXISTS {0}'.format(tableName))
-        await self.cursor.execute("CREATE TABLE {0}({1})".format(tableName, query))
-
-    async def insert(self, tableName, data):
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join('?' * len(data))
-        sql = 'INSERT INTO {} ({}) VALUES ({})'.format(tableName, columns, placeholders)
-                        
-        await self.cursor.execute(sql, list(data.values()))
-        await self.conn.commit()
-        
-        return self.cursor.lastrowid
+    async def insert(self, data):
+        async with self.async_session() as session:
+            async with session.begin():
+                session.add_all(data)
+                
+    async def select(self, query):
+        async with self.async_session() as session:
+            result = await session.execute(query)
+            data = []
+            for result in result.scalars():
+                await result.awaitable_attrs.lineUp
+                for ticket in await result.awaitable_attrs.ticketCollections:
+                    await ticket.awaitable_attrs.metadataList
+                data.append(result)
+            return data
 
     async def exec_query(self, query):
         await self.cursor.execute(query)
