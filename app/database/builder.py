@@ -1,21 +1,9 @@
 import os
-import json
-from abc import ABC, abstractmethod
 from app.database.sqlite import Database
 from app.database.models.models import Organizers
 from app.database.models.models import SmartContracts
         
-class DatabaseBuilder(ABC):
-    
-    @abstractmethod
-    async def build_database(self):
-        pass
-
-    @abstractmethod
-    async def get_database(self):
-        pass
-            
-class SqliteBuilder(DatabaseBuilder):
+class SqliteBuilder():
     
     def __init__(self):
         self.__db = Database()
