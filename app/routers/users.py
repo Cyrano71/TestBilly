@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 from app.service import db_service
 from app.schemas.schemas import *
 
@@ -12,12 +12,17 @@ async def get_organizer():
 @router.get("/get_organizer/{id}")
 async def get_organizer(id: int):
     result = await db_service.get_organizer_by_id(id)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No organizer with this id: `{id}` found",
+        )
     return {"result": result}
 
 @router.put("/update_organizer/{id}")
 async def update_organizer(id: int, item: OrganizersPutRequest):
     result = await db_service.update_organizer(id, item)
-    return {"SUCCESS": result}
+    return {"Status": "Success", "id": id}
 
 @router.get("/get_smart_contract/{id}")
 async def get_smart_contract(id: int):
@@ -27,4 +32,4 @@ async def get_smart_contract(id: int):
 @router.put("/update_smart_contract/{id}")
 async def update_smart_contract(id: int, item: SmartContractPutRequest):
     result = await db_service.update_smart_contract(id, item)
-    return {"SUCCESS": result}
+    return {"Status": "Success", "id": id}
