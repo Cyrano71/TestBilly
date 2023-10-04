@@ -28,6 +28,10 @@ class Database:
     async def __aexit__(self,exc_type,exc_value,traceback):
         await self.close()
 
+    async def insert_single(self, data):
+        await insert([data])
+        return data.id
+             
     async def insert(self, data):
         async with self.async_session() as session:
             async with session.begin():

@@ -19,6 +19,6 @@ class SqliteBuilder():
                     organizer.ticketCollections.append(smart_contract)
         await self.__db.insert(organizers)
            
-    async def get_database(self):
+    def get_database(self):
         return self.__db
         

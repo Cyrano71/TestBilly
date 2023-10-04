@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import datetime
 
-class SmartContractPutRequest(BaseModel):
+class SmartContractDataRequest(BaseModel):
     eventId: int | None = None
     collectionName: str | None = None
     crowdsale: str | None = None
@@ -32,7 +32,7 @@ class SmartContractGetRequest(BaseModel):
     saleCurrency: dict | None = None
     metadataList: list  | None = None
     
-class OrganizersPutRequest(BaseModel):
+class OrganizersDataRequest(BaseModel):
     eventTitle: str | None = None
     eventStartDate: datetime.datetime | None = None
     eventEndDate: datetime.datetime | None = None
