@@ -1,9 +1,5 @@
 fastapi
 uvicorn
 pytest
-pytest-mock
-unittest
-aiosqlite
-pytest-asyncio
 httpx
 sqlalchemy
