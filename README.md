@@ -4,7 +4,7 @@
 
 1. Clone this Repo
 
-   `git clone (https://github.com/Cyrano71/TestBilly.git)`
+   `git clone https://github.com/Cyrano71/TestBilly.git`
 2. Cd into the folder
 
    `cd TestBilly`
