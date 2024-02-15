@@ -1,4 +1,4 @@
-# Test App
+# Test App Billy
 
 ## Installation method
 
