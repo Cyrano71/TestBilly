@@ -1,9 +1,11 @@
 # Test App Billy 34567
-test rewrite main remote merge test2 branch
+rebase manually test on main with merge conflicts
 ## Installation method
 fzezefezzf
 
 to merge
+
+squash
 1. Clone this Repo
 
    `git clone https://github.com/Cyrano71/TestBilly.git`
