@@ -1,5 +1,5 @@
 # Test App Billy 34567
-tes rewrite main remote
+test rewrite main remote
 ## Installation method
 
 1. Clone this Repo
