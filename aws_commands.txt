@@ -1,0 +1,7 @@
+choose ubuntu ami
+
+sudo apt update
+sudo apt install python3-pip
+
+python3 main.py 
+python3 -m pytest
